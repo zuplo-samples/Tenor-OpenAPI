@@ -1,0 +1,685 @@
+openapi: 3.0.0
+info:
+  title: Tenor API
+  description: The Tenor API enables you to search for and share GIFs and stickers.
+  version: '1.0.0'
+servers:
+  - url: https://tenor.googleapis.com/v2
+paths:
+  /search:
+    get:
+      summary: Search GIFs and Stickers
+      description: |
+        Get a JSON object that contains a list of the most relevant GIFs or stickers for a given set of search terms, categories, emojis, or any combination of these.
+
+        When you include the URL parameter `searchfilter=sticker` in the request, Tenor's search endpoint returns stickers rather than GIFs.
+      parameters:
+        - name: key
+          in: query
+          description: API key for privileged access.
+          required: true
+          schema:
+            type: string
+        - name: q
+          in: query
+          description: A search string.
+          required: true
+          schema:
+            type: string
+        - name: client_key
+          in: query
+          description: |
+            A client-specified string that represents the integration.
+
+            The client key lets you use the same API key across different integrations but still be able to differentiate them.
+
+            For an app integration, use the same `client_key` value for all API calls.
+          required: false
+          schema:
+            type: string
+        - name: searchfilter
+          in: query
+          description: |
+            Comma-separated list of non-GIF content types to filter the Response Objects.
+
+            Accepted values are `sticker`, `static`, and `-static`.
+
+            - `searchfilter=sticker` returns both static and animated sticker content.
+            - `searchfilter=sticker,-static` returns only animated sticker content.
+            - `searchfilter=sticker,static` returns only static sticker content.
+
+            For GIF content, either leave `searchfilter` blank or don't use it.
+          required: false
+          schema:
+            type: string
+        - name: country
+          in: query
+          description: |
+            Specify the country of origin for the request.
+
+            Provide its two-letter ISO 3166-1 country code.
+          required: false
+          schema:
+            type: string
+            minLength: 2
+            maxLength: 2
+            default: US
+        - name: locale
+          in: query
+          description: |
+            Specify the default language to interpret the search string.
+
+            Format: `xx` or `xx_YY`, where `xx` is the ISO 639-1 language code and `YY` is the optional two-letter ISO 3166-1 country code.
+          required: false
+          schema:
+            type: string
+            default: en_US
+        - name: contentfilter
+          in: query
+          description: |
+            Specify the content safety filter level.
+
+            Accepted values are `off`, `low`, `medium`, and `high`.
+
+            The default value is `off`.
+          required: false
+          schema:
+            type: string
+            enum: [off, low, medium, high]
+            default: off
+        - name: media_filter
+          in: query
+          description: |
+            Comma-separated list of GIF formats to filter the Response Objects.
+
+            Example: `media_filter=gif,tinygif,mp4,tinymp4`.
+
+            By default, `media_filter` returns all formats for each Response Object.
+          required: false
+          schema:
+            type: string
+        - name: ar_range
+          in: query
+          description: |
+            Filter the Response Objects to only include GIFs with aspect ratios that fit within the selected range.
+
+            Accepted values are:
+
+            - `all`: No constraints (default)
+            - `wide`: 0.42 <= aspect ratio <= 2.36
+            - `standard`: 0.56 <= aspect ratio <= 1.78
+          required: false
+          schema:
+            type: string
+            enum: [all, wide, standard]
+            default: all
+        - name: random
+          in: query
+          description: |
+            Specify whether to randomly order the response.
+
+            Accepted values are `true` and `false`.
+
+            The default value is `false`.
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: limit
+          in: query
+          description: |
+            Fetch up to the specified number of results.
+
+            The default value is `20`, and the maximum value is `50`.
+          required: false
+          schema:
+            type: integer
+            default: 20
+            maximum: 50
+        - name: pos
+          in: query
+          description: |
+            Retrieve results that start at the position "value".
+
+            Use a non-zero, non-empty value from `next`, returned by the API response, to get the next set of results.
+
+            `pos` isn't an index and might be an integer, float, or string.
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response with a list of GIFs or stickers.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResults'
+        '400':
+          description: Bad request due to invalid parameters.
+        '401':
+          description: Unauthorized access due to an invalid API key.
+        '500':
+          description: Internal server error.
+  /featured:
+    get:
+      summary: Featured GIFs and Stickers
+      description: |
+        Get a JSON object that contains a list of the current global featured GIFs or stickers.
+
+        Tenor updates the featured stream regularly throughout the day.
+
+        When you include the URL parameter `searchfilter=sticker` in the request, Tenor's Featured endpoint returns stickers rather than GIFs.
+      parameters:
+        - name: key
+          in: query
+          description: API key for privileged access.
+          required: true
+          schema:
+            type: string
+        - name: client_key
+          in: query
+          description: As above.
+          required: false
+          schema:
+            type: string
+        - name: searchfilter
+          in: query
+          description: As above.
+          required: false
+          schema:
+            type: string
+        - name: country
+          in: query
+          description: As above.
+          required: false
+          schema:
+            type: string
+            minLength: 2
+            maxLength: 2
+            default: US
+        - name: locale
+          in: query
+          description: As above.
+          required: false
+          schema:
+            type: string
+            default: en_US
+        - name: contentfilter
+          in: query
+          description: As above.
+          required: false
+          schema:
+            type: string
+            enum: [off, low, medium, high]
+            default: off
+        - name: media_filter
+          in: query
+          description: As above.
+          required: false
+          schema:
+            type: string
+        - name: ar_range
+          in: query
+          description: As above.
+          required: false
+          schema:
+            type: string
+            enum: [all, wide, standard]
+            default: all
+        - name: limit
+          in: query
+          description: As above.
+          required: false
+          schema:
+            type: integer
+            default: 20
+            maximum: 50
+        - name: pos
+          in: query
+          description: As above.
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response with a list of featured GIFs or stickers.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResults'
+        '400':
+          description: Bad request due to invalid parameters.
+        '401':
+          description: Unauthorized access due to an invalid API key.
+        '500':
+          description: Internal server error.
+  /categories:
+    get:
+      summary: Get Categories
+      description: |
+        Get a JSON object that contains a list of GIF categories associated with the provided type.
+
+        Each category includes a corresponding search URL to use if the user clicks on the category. The search URL includes any parameters from the original call to the Categories endpoint.
+      parameters:
+        - name: key
+          in: query
+          description: As above.
+          required: true
+          schema:
+            type: string
+        - name: client_key
+          in: query
+          description: As above.
+          required: false
+          schema:
+            type: string
+        - name: country
+          in: query
+          description: As above.
+          required: false
+          schema:
+            type: string
+            minLength: 2
+            maxLength: 2
+            default: US
+        - name: locale
+          in: query
+          description: As above.
+          required: false
+          schema:
+            type: string
+            default: en_US
+        - name: type
+          in: query
+          description: |
+            Determines the type of categories returned.
+
+            Accepted values are `featured` (default) and `trending`.
+          required: false
+          schema:
+            type: string
+            enum: [featured, trending]
+            default: featured
+        - name: contentfilter
+          in: query
+          description: As above.
+          required: false
+          schema:
+            type: string
+            enum: [off, low, medium, high]
+            default: off
+      responses:
+        '200':
+          description: Successful response with a list of categories.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoriesResults'
+        '400':
+          description: Bad request due to invalid parameters.
+        '401':
+          description: Unauthorized access due to an invalid API key.
+        '500':
+          description: Internal server error.
+  /search_suggestions:
+    get:
+      summary: Search Suggestions
+      description: |
+        Get a JSON object that contains a list of alternative search terms for a given search term.
+
+        Search suggestions help a user narrow their search or discover related search terms to find a more precise GIF or sticker.
+      parameters:
+        - name: key
+          in: query
+          description: As above.
+          required: true
+          schema:
+            type: string
+        - name: q
+          in: query
+          description: A search string.
+          required: true
+          schema:
+            type: string
+        - name: client_key
+          in: query
+          description: As above.
+          required: false
+          schema:
+            type: string
+        - name: country
+          in: query
+          description: As above.
+          required: false
+          schema:
+            type: string
+            minLength: 2
+            maxLength: 2
+            default: US
+        - name: locale
+          in: query
+          description: As above.
+          required: false
+          schema:
+            type: string
+            default: en_US
+        - name: limit
+          in: query
+          description: As above.
+          required: false
+          schema:
+            type: integer
+            default: 20
+            maximum: 50
+      responses:
+        '200':
+          description: Successful response with search suggestions.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuggestionsResults'
+        '400':
+          description: Bad request due to invalid parameters.
+        '401':
+          description: Unauthorized access due to an invalid API key.
+        '500':
+          description: Internal server error.
+  /autocomplete:
+    get:
+      summary: Autocomplete
+      description: |
+        Get a JSON object that contains a list of completed search terms for a given partial search term.
+
+        The list is sorted by Tenor's AI, and the number of results decreases as Tenor's AI becomes more certain.
+      parameters:
+        - name: key
+          in: query
+          description: As above.
+          required: true
+          schema:
+            type: string
+        - name: q
+          in: query
+          description: A partial search string.
+          required: true
+          schema:
+            type: string
+        - name: client_key
+          in: query
+          description: As above.
+          required: false
+          schema:
+            type: string
+        - name: country
+          in: query
+          description: As above.
+          required: false
+          schema:
+            type: string
+            minLength: 2
+            maxLength: 2
+            default: US
+        - name: locale
+          in: query
+          description: As above.
+          required: false
+          schema:
+            type: string
+            default: en_US
+        - name: limit
+          in: query
+          description: As above.
+          required: false
+          schema:
+            type: integer
+            default: 20
+            maximum: 50
+      responses:
+        '200':
+          description: Successful response with autocomplete suggestions.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuggestionsResults'
+        '400':
+          description: Bad request due to invalid parameters.
+        '401':
+          description: Unauthorized access due to an invalid API key.
+        '500':
+          description: Internal server error.
+  /trending_terms:
+    get:
+      summary: Trending Search Terms
+      description: |
+        Get a JSON object that contains a list of the current trending search terms.
+
+        Tenor's AI updates the list hourly.
+      parameters:
+        - name: key
+          in: query
+          description: As above.
+          required: true
+          schema:
+            type: string
+        - name: client_key
+          in: query
+          description: As above.
+          required: false
+          schema:
+            type: string
+        - name: country
+          in: query
+          description: As above.
+          required: false
+          schema:
+            type: string
+            minLength: 2
+            maxLength: 2
+            default: US
+        - name: locale
+          in: query
+          description: As above.
+          required: false
+          schema:
+            type: string
+            default: en_US
+        - name: limit
+          in: query
+          description: As above.
+          required: false
+          schema:
+            type: integer
+            default: 20
+            maximum: 50
+      responses:
+        '200':
+          description: Successful response with trending search terms.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuggestionsResults'
+        '400':
+          description: Bad request due to invalid parameters.
+        '401':
+          description: Unauthorized access due to an invalid API key.
+        '500':
+          description: Internal server error.
+  /registershare:
+    get:
+      summary: Register Share
+      description: |
+        Register a user's sharing of a GIF or sticker.
+
+        This optional call helps Tenor's Search Engine AI tune its results.
+      parameters:
+        - name: key
+          in: query
+          description: As above.
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: query
+          description: The `id` of a Response Object.
+          required: true
+          schema:
+            type: string
+        - name: client_key
+          in: query
+          description: As above.
+          required: false
+          schema:
+            type: string
+        - name: country
+          in: query
+          description: As above.
+          required: false
+          schema:
+            type: string
+            minLength: 2
+            maxLength: 2
+            default: US
+        - name: locale
+          in: query
+          description: As above.
+          required: false
+          schema:
+            type: string
+            default: en_US
+        - name: q
+          in: query
+          description: The search string that leads to this share.
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful registration of share.
+        '400':
+          description: Bad request due to invalid parameters.
+        '401':
+          description: Unauthorized access due to an invalid API key.
+        '500':
+          description: Internal server error.
+  /posts:
+    get:
+      summary: Get Posts by IDs
+      description: |
+        Get the GIFs, stickers, or a combination of the two for the specified IDs.
+      parameters:
+        - name: key
+          in: query
+          description: As above.
+          required: true
+          schema:
+            type: string
+        - name: ids
+          in: query
+          description: |
+            A comma-separated list of Response Object IDs.
+
+            The maximum number of IDs is `50`.
+          required: true
+          schema:
+            type: string
+        - name: client_key
+          in: query
+          description: As above.
+          required: false
+          schema:
+            type: string
+        - name: media_filter
+          in: query
+          description: As above.
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response with a list of posts.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostsResults'
+        '400':
+          description: Bad request due to invalid parameters.
+        '401':
+          description: Unauthorized access due to an invalid API key.
+        '500':
+          description: Internal server error.
+components:
+  schemas:
+    SearchResults:
+      type: object
+      properties:
+        next:
+          type: string
+          description: |
+            A position identifier to use with the next API query, through the `pos` field, to retrieve the next set of results.
+
+            If there are no further results, `next` returns an empty string.
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseObject'
+    CategoriesResults:
+      type: object
+      properties:
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/CategoryObject'
+    SuggestionsResults:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            type: string
+            description: A suggested search term.
+    PostsResults:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseObject'
+    ResponseObject:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the content.
+        title:
+          type: string
+          description: Title of the content.
+        media_formats:
+          type: object
+          description: Available media formats for the content.
+          additionalProperties:
+            type: object
+        created:
+          type: string
+          format: date-time
+          description: Creation timestamp of the content.
+        content_description:
+          type: string
+          description: Description of the content.
+        itemurl:
+          type: string
+          description: URL of the content's page on Tenor.
+        hasaudio:
+          type: boolean
+          description: Indicates if the content has audio.
+    CategoryObject:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the category.
+        image:
+          type: string
+          description: URL of the category image.
+        path:
+          type: string
+          description: Search URL to use if the user clicks on the category.
